@@ -1,13 +1,10 @@
 package me.xhyrom.spawnergenz.listeners;
 
 import me.xhyrom.spawnergenz.SpawnerGenz;
+import me.xhyrom.spawnergenz.structs.queue.GlobalQueueManager;
 import me.xhyrom.spawnergenz.structs.Spawner;
 import me.xhyrom.spawnergenz.utils.Utils;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.HumanEntity;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.SpawnerSpawnEvent;
@@ -16,6 +13,7 @@ import org.bukkit.loot.LootContext;
 import org.bukkit.loot.LootTable;
 import org.bukkit.loot.Lootable;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 public class SpawnerListener implements Listener {
@@ -37,8 +35,6 @@ public class SpawnerListener implements Listener {
                     e.printStackTrace();
                 }
             }
-
-            Bukkit.getScheduler().runTask(SpawnerGenz.getInstance(), () -> handle(event, spawner));
         });
     }
 
@@ -53,11 +49,15 @@ public class SpawnerListener implements Listener {
 
             spawner.setExperience(spawner.getExperience() + Utils.getRandomInt(0, 2));
 
+            ArrayList<ItemStack> loot = new ArrayList<>();
             for (ItemStack item : lootTable.populateLoot(new Random(), lootContext)) {
-                if (spawner.getStorage().size() >= SpawnerGenz.getInstance().getConfig().getInt("spawners.storage-multiplier") * spawner.getCount()) break;
-
-                spawner.addItemToStorage(item);
+                if (spawner.getStorage().size() >= SpawnerGenz.getInstance().getConfig().getInt("spawners.storage-multiplier") * spawner.getCount()) {
+                    break;
+                }
+                loot.add(item);
             }
+            GlobalQueueManager.addToQueue(spawner, loot);
         }
     }
+
 }

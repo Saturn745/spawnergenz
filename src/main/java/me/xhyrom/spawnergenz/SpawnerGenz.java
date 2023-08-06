@@ -8,13 +8,17 @@ import me.xhyrom.spawnergenz.hooking.Hooks;
 import me.xhyrom.spawnergenz.listeners.BlockListener;
 import me.xhyrom.spawnergenz.listeners.ClickListener;
 import me.xhyrom.spawnergenz.listeners.SpawnerListener;
+import me.xhyrom.spawnergenz.structs.queue.GlobalQueueManager;
 import me.xhyrom.spawnergenz.structs.Spawner;
 import me.xhyrom.spawnergenz.structs.TTLHashMap;
 import me.xhyrom.spawnergenz.structs.actions.*;
+import org.bukkit.Bukkit;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Queue;
 
 public class SpawnerGenz extends JavaPlugin {
     @Getter
@@ -78,6 +82,25 @@ public class SpawnerGenz extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new BlockListener(), this);
         Hooks.init();
         SpawnerGenzCommand.register();
+        Bukkit.getScheduler().scheduleAsyncRepeatingTask(this, () -> {
+            Queue<GlobalQueueManager.LootEntry> lootQueue = GlobalQueueManager.getQueue();
+
+            while (!lootQueue.isEmpty()) {
+                GlobalQueueManager.LootEntry currentSpawner = lootQueue.poll();
+                Bukkit.getScheduler().runTaskAsynchronously(SpawnerGenz.getInstance(), () -> {
+                    while (!currentSpawner.getSpawner().isReady()) {
+                        try {
+                            Thread.sleep(100);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+                for (ItemStack item : currentSpawner.getItem()) {
+                    currentSpawner.getSpawner().addItemToStorage(item);
+                }
+            }
+        }, 0, 20 * 20L);
     }
 
     @Override
