@@ -7,6 +7,7 @@ import me.xhyrom.spawnergenz.commands.SpawnerGenzCommand;
 import me.xhyrom.spawnergenz.hooking.Hooks;
 import me.xhyrom.spawnergenz.listeners.BlockListener;
 import me.xhyrom.spawnergenz.listeners.ClickListener;
+import me.xhyrom.spawnergenz.listeners.ExplodeListener;
 import me.xhyrom.spawnergenz.listeners.SpawnerListener;
 import me.xhyrom.spawnergenz.structs.queue.GlobalQueueManager;
 import me.xhyrom.spawnergenz.structs.Spawner;
@@ -80,9 +81,10 @@ public class SpawnerGenz extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new ClickListener(), this);
         getServer().getPluginManager().registerEvents(new SpawnerListener(), this);
         getServer().getPluginManager().registerEvents(new BlockListener(), this);
+        getServer().getPluginManager().registerEvents(new ExplodeListener(), this);
         Hooks.init();
         SpawnerGenzCommand.register();
-        Bukkit.getScheduler().scheduleAsyncRepeatingTask(this, () -> {
+        Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> {
             Queue<GlobalQueueManager.LootEntry> lootQueue = GlobalQueueManager.getQueue();
 
             while (!lootQueue.isEmpty()) {
