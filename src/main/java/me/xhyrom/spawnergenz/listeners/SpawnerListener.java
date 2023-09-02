@@ -5,6 +5,8 @@ import me.xhyrom.spawnergenz.structs.queue.GlobalQueueManager;
 import me.xhyrom.spawnergenz.structs.Spawner;
 import me.xhyrom.spawnergenz.utils.Utils;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.SpawnerSpawnEvent;
@@ -14,6 +16,7 @@ import org.bukkit.loot.LootTable;
 import org.bukkit.loot.Lootable;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class SpawnerListener implements Listener {
@@ -39,23 +42,14 @@ public class SpawnerListener implements Listener {
     }
 
     private void handle(SpawnerSpawnEvent event, Spawner spawner) {
-        LootTable lootTable = ((Lootable) event.getEntity()).getLootTable();
-
         for (int i = 0; i < spawner.getCount(); i++) {
-            LootContext lootContext = new LootContext.Builder(event.getLocation())
-                    .lootedEntity(event.getEntity())
-                    .lootingModifier(1)
-                    .build();
-
             spawner.setExperience(spawner.getExperience() + Utils.getRandomInt(0, 2));
+            ArrayList<ItemStack> loot = Utils.getLootFromConfig(event.getEntity().getType().toString());
 
-            ArrayList<ItemStack> loot = new ArrayList<>();
-            for (ItemStack item : lootTable.populateLoot(new Random(), lootContext)) {
-                if (spawner.getStorage().size() >= SpawnerGenz.getInstance().getConfig().getInt("spawners.storage-multiplier") * spawner.getCount()) {
-                    break;
-                }
-                loot.add(item);
+            if (loot.size() >= SpawnerGenz.getInstance().getConfig().getInt("spawners.storage-multiplier") * spawner.getCount()) {
+                break;
             }
+
             GlobalQueueManager.addToQueue(spawner, loot);
         }
     }

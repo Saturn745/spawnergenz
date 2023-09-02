@@ -21,6 +21,38 @@ spawners:
   max-stack-size: 256 # This determines how many spawners someone can have in a single stack
   storage-multiplier: 18 # This determines the scaling factor applied to the maximum storage capacity for each spawner in a stack.
 
+
+# TODO: Move this to a separate file
+loot:
+  CREEPER:
+    - { minimum: 0, maximum: 2, item: "GUNPOWDER" }
+  ZOMBIE:
+    - { minimum: 0, maximum: 5, chance: 0.83, item: "ROTTEN_FLESH" }
+    - { minimum: 0, maximum: 1, chance: 0.83, item: "IRON_INGOT" }
+    - { minimum: 0, maximum: 1, chance: 0.83, item: "CARROT" }
+    - { minimum: 0, maximum: 1, chance: 0.83, item: "POTATO" }
+  SKELETON:
+    - { minimum: 0, maximum: 2, item: "BONE" }
+    - { minimum: 0, maximum: 1, item: "ARROW" }
+  COW:
+    - { minimum: 1, maximum: 3, item: "RAW_BEEF" }
+    - { minimum: 0, maximum: 2, item: "LEATHER" }
+  PIG:
+    - { minimum: 1, maximum: 3, item: "RAW_PORKCHOP" }
+  CAVE_SPIDER:
+    - { minimum: 0, maximum: 2, item: "STRING" }
+    - { minimum: 0, maximum: 1, chance: 33, item: "SPIDER_EYE" }
+  SPIDER:
+    - { minimum: 0, maximum: 2, item: "STRING" }
+    - { minimum: 0, maximum: 1, chance: 33, item: "SPIDER_EYE" }
+  IRON_GOLEM:
+    - { minimum: 3, maximum: 5, item: "IRON_INGOT" }
+    - { minimum: 0, maximum: 2, item: "POPPY" }
+  ENDERMEN:
+    - { minimum: 0, maximum: 1, item: "ENDER_PEARL" }
+  WARDEN:
+    - { minimum: 1, maximum: 1, item: "SCULK_CATALYST" }
+
 messages:
   loading-spawner: "<green>Loading spawner..."
   success-merge: "<green>Merged spawners! now: <count> <spawner_type>"
