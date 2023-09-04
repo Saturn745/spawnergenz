@@ -13,11 +13,15 @@ import me.xhyrom.spawnergenz.structs.queue.GlobalQueueManager;
 import me.xhyrom.spawnergenz.structs.Spawner;
 import me.xhyrom.spawnergenz.structs.TTLHashMap;
 import me.xhyrom.spawnergenz.structs.actions.*;
+import me.xhyrom.spawnergenz.utils.Utils;
 import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Queue;
 
@@ -84,25 +88,40 @@ public class SpawnerGenz extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new ExplodeListener(), this);
         Hooks.init();
         SpawnerGenzCommand.register();
-        Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> {
-            Queue<GlobalQueueManager.LootEntry> lootQueue = GlobalQueueManager.getQueue();
+        Bukkit.getScheduler().runTaskTimer(this, () -> {
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                Chunk chunk = player.getLocation().getChunk();
+                Spawner[] spawners = Arrays.stream(chunk.getTileEntities()).filter(tileEntity -> tileEntity instanceof org.bukkit.block.CreatureSpawner).map(tileEntity -> Spawner.fromCreatureSpawner((org.bukkit.block.CreatureSpawner) tileEntity)).toArray(Spawner[]::new);
 
-            while (!lootQueue.isEmpty()) {
-                GlobalQueueManager.LootEntry currentSpawner = lootQueue.poll();
-                Bukkit.getScheduler().runTaskAsynchronously(SpawnerGenz.getInstance(), () -> {
-                    while (!currentSpawner.getSpawner().isReady()) {
-                        try {
-                            Thread.sleep(100);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
+                if (spawners.length > 0) {
+                    Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
+                        for (Spawner spawner : spawners) {
+                            if (!spawner.isReady()) {
+                                while (!spawner.isReady()) {
+                                    try {
+                                        Thread.sleep(100);
+                                    } catch (InterruptedException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }
+                            for (int i = 0; i < spawner.getCount(); i++) {
+                                spawner.setExperience(spawner.getExperience() + Utils.getRandomInt(0, 2));
+                                ArrayList<ItemStack> generatedLoot = Utils.getLootFromConfig(spawner.getCreatureSpawner().getSpawnedType().toString());
+
+                                if (generatedLoot.size() >= SpawnerGenz.getInstance().getConfig().getInt("spawners.storage-multiplier") * spawner.getCount()) {
+                                    break;
+                                }
+
+                                for (ItemStack itemStack : generatedLoot) {
+                                    spawner.addItemToStorage(itemStack);
+                                }
+                            }
                         }
-                    }
-                });
-                for (ItemStack item : currentSpawner.getItem()) {
-                    currentSpawner.getSpawner().addItemToStorage(item);
+                    });
                 }
             }
-        }, 0, 20 * 20L);
+        }, 0, 65 * 20L);
     }
 
     @Override

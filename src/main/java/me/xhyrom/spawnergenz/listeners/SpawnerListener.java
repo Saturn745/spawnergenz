@@ -24,7 +24,7 @@ public class SpawnerListener implements Listener {
     public void onSpawnerSpawn(SpawnerSpawnEvent event) {
         event.setCancelled(true);
 
-        Spawner spawner = Spawner.fromCreatureSpawner(event.getSpawner());
+/*        Spawner spawner = Spawner.fromCreatureSpawner(event.getSpawner());
         if (spawner.isReady()) {
             handle(event, spawner);
             return;
@@ -38,7 +38,7 @@ public class SpawnerListener implements Listener {
                     e.printStackTrace();
                 }
             }
-        });
+        });*/
     }
 
     private void handle(SpawnerSpawnEvent event, Spawner spawner) {
